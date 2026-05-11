@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Segment Audit — Full + Obstructions</title>
+  <link rel="stylesheet" href="../css/from.css">
+</head>
+<body>
+
+<form id="auditForm" onsubmit="event.preventDefault(); submitFullAudit();">
+  <input type="hidden" name="segment_id" id="segment_id">
+
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">🔄</div>
+    <h4>Reset the Form?</h4>
+    <p>All entered data will be permanently cleared.</p>
+    <div class="confirm-btns">
+      <button type="button" class="confirm-yes" onclick="doReset()">Yes, Reset</button>
+      <button type="button" class="confirm-no"  onclick="closeConfirm()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<button type="button" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+
+<div class="container">
+  <h2>Full Segment Audit</h2>
+
+  <div class="progress-wrap">
+    <div class="progress-header">
+      <span class="progress-label">📋 Form Progress <span id="autosaveBadge">✓ Saved</span></span>
+      <span class="progress-pct" id="progressPct">0%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <nav class="section-nav">
+    <a href="#sec-landmarks">📍 Landmarks</a>
+    <a href="#sec-fixed">🏗 Fixed Obs.</a>
+    <a href="#sec-movable">🔄 Movable Obs.</a>
+    <a href="#sec-parked">🚗 Parked Vehicles</a>
+    <a href="#sec-surface">🛣 Track Surface</a>
+    <a href="#sec-intersections">🔀 Intersections</a>
+    <a href="#sec-footpath">🚶 Footpath Rating</a>
+    <a href="#sec-additional">ℹ️ Additional Info</a>
+    <a href="#sec-dimensions">📐 Dimensions</a>
+  </nav>
+
+  <h3 id="sec-landmarks" class="section-anchor">Landmarks & GPS</h3>
+  <div class="req-field" id="wrap-startLandmark">
+    <label>Start Point Landmark: <span style="color:#e53e3e">*</span></label>
+    <input type="text" id="startLandmark" name="start_landmark" oninput="clearError('wrap-startLandmark')">
+    <span class="error-msg">This field is required</span>
+  </div>
+  <div class="req-field" id="wrap-endLandmark">
+    <label>End Point Landmark: <span style="color:#e53e3e">*</span></label>
+    <input type="text" id="endLandmark" name="end_landmark" oninput="clearError('wrap-endLandmark')">
+    <span class="error-msg">This field is required</span>
+  </div>
+  <div class="req-field" id="wrap-gpsStart">
+    <label>GPS Start Point: <span style="color:#e53e3e">*</span></label>
+    <input type="text" id="gpsStart" name="gps_start" oninput="clearError('wrap-gpsStart')">
+    <span class="error-msg">This field is required</span>
+  </div>
+  <div class="req-field" id="wrap-gpsEnd">
+    <label>GPS End Point: <span style="color:#e53e3e">*</span></label>
+    <input type="text" id="gpsEnd" name="gps_end" oninput="clearError('wrap-gpsEnd')">
+    <span class="error-msg">This field is required</span>
+  </div>
+
+  <h3 id="sec-fixed" class="section-anchor">Fixed Obstructions</h3>
+  <label>Search Fixed Obstructions</label>
+  <div class="search-wrapper" id="fixedWrapper">
+    <input type="text" placeholder="Click to see options or type to search…"
+           oninput="filterList('fixed',this)" onfocus="openDropdown('fixed')" autocomplete="off">
+    <div class="checkbox-container" id="fixedList"></div>
+  </div>
+  <div class="selected-tags" id="fixedTags"></div>
+  <div id="fixedInputs"></div>
+
+  <h3 id="sec-movable" class="section-anchor">Movable Obstructions</h3>
+  <label>Search Movable Obstructions</label>
+  <div class="search-wrapper" id="movableWrapper">
+    <input type="text" placeholder="Click to see options or type to search…"
+           oninput="filterList('movable',this)" onfocus="openDropdown('movable')" autocomplete="off">
+    <div class="checkbox-container" id="movableList"></div>
+  </div>
+  <div class="selected-tags" id="movableTags"></div>
+  <div id="movableInputs"></div>
+
+  <h3 id="sec-parked" class="section-anchor">Parked Vehicles: Due To</h3>
+  <label>Search Parked Vehicle Reasons</label>
+  <div class="search-wrapper" id="parkedWrapper">
+    <input type="text" placeholder="Click to see options or type to search…"
+           oninput="filterList('parked',this)" onfocus="openDropdown('parked')" autocomplete="off">
+    <div class="checkbox-container" id="parkedList"></div>
+  </div>
+  <div class="selected-tags" id="parkedTags"></div>
+  <div id="parkedInputs"></div>
+
+  <h3 id="sec-surface" class="section-anchor">Track Surface & Overhead Obstructions</h3>
+  <label>Cycle Track Missing</label>
+  <div class="options">
+    <label><input type="radio" name="cycle_track_missing" value="Yes" onchange="toggleMissingLength(this)"> Yes</label>
+    <label><input type="radio" name="cycle_track_missing" value="No"  onchange="toggleMissingLength(this)"> No</label>
+  </div>
+  <div id="missingLengthBox">
+    <label>⚠ Missing Length (m)</label>
+    <input type="number" id="missingLength" name="missing_length" placeholder="Enter missing cycle track length in meters" min="0">
+  </div>
+
+  <h3>Track Surface</h3>
+  <div class="options">
+    <label><input type="checkbox" name="surface_issues[]" value="gravel"> Gravel, sand, debris, dirt</label>
+    <label><input type="checkbox" name="surface_issues[]" value="loose"> Loose Interlock Blocks</label>
+    <label><input type="checkbox" name="surface_issues[]" value="broken"> Broken Surface</label>
+    <label><input type="checkbox" name="surface_issues[]" value="water"> Water Stagnation / Surface Undulation</label>
+    <label><input type="checkbox" name="surface_issues[]" value="roots"> Tree Roots</label>
+    <label><input type="checkbox" name="surface_issues[]" value="manholes"> Manholes</label>
+    <label><input type="checkbox" name="surface_issues[]" value="cables"> Exposed Underground Cables</label>
+  </div>
+
+  <h3>Overhead Obstructions</h3>
+  <div class="options">
+    <label><input type="checkbox" name="overhead_issues[]" value="overheadCables"> Cables</label>
+    <label><input type="checkbox" name="overhead_issues[]" value="branches"> Branches</label>
+  </div>
+
+  <h3 id="sec-intersections" class="section-anchor">Intersections</h3>
+  <div id="intersectionsContainer"></div>
+  <button type="button" class="btn-add-intersection" onclick="addIntersection()">＋ Add Intersection</button>
+
+  <h3 id="sec-footpath" class="section-anchor">Footpath Rating <span class="rating-score" id="footpathScore">0%</span></h3>
+  <p style="font-size:13px;color:#666;margin-top:5px;">Select all criteria that apply (each worth 20%)</p>
+  <div class="options">
+    <label><input type="checkbox" name="footpath_rating[]" value="minWidth" onchange="updateFootpathScore()"> Min 1.8m wide</label>
+    <label><input type="checkbox" name="footpath_rating[]" value="continuous" onchange="updateFootpathScore()"> Continuous and levelled</label>
+    <label><input type="checkbox" name="footpath_rating[]" value="obstructionFree" onchange="updateFootpathScore()"> Obstruction Free</label>
+    <label><input type="checkbox" name="footpath_rating[]" value="disabledFriendly" onchange="updateFootpathScore()"> Disabled friendly - having access ramps with tactile tiles</label>
+    <label><input type="checkbox" name="footpath_rating[]" value="comfort" onchange="updateFootpathScore()"> Comfort - tree shade with seating spaces</label>
+  </div>
+
+  <label>Can an average cyclist use the segment without getting off the cycle or the cycle track?</label>
+  <div class="options">
+    <label><input type="radio" name="cyclist_use" value="Yes"> Yes</label>
+    <label><input type="radio" name="cyclist_use" value="No"> No</label>
+  </div>
+
+  <label>Which surface is better to cycle?</label>
+  <div class="options">
+    <label><input type="radio" name="better_surface" value="Cycle Track"> Cycle Track</label>
+    <label><input type="radio" name="better_surface" value="Road"> Road</label>
+  </div>
+
+  <label>Cycle track surface material:</label>
+  <div class="options">
+    <label><input type="radio" name="surface_material" value="Interlock Blocks"> Interlock Blocks</label>
+    <label><input type="radio" name="surface_material" value="Concrete"> Concrete</label>
+    <label><input type="radio" name="surface_material" value="Asphalt"> Asphalt</label>
+  </div>
+
+  <label>Were there people walking on the cycle track?</label>
+  <div class="options">
+    <label><input type="radio" name="people_walking" value="Yes"> Yes</label>
+    <label><input type="radio" name="people_walking" value="No"> No</label>
+  </div>
+
+  <label>Number of signages to indicate the presence of a cycle track:</label>
+  <div style="margin-top:8px;">
+    <div class="counter-ctrl" style="width:fit-content;">
+      <button type="button" onclick="adjustCounter('signageCount',-1)">−</button>
+      <input type="number" id="signageCount" name="signage_count" value="0" min="0" oninput="clampCounter('signageCount')">
+      <button type="button" onclick="adjustCounter('signageCount',1)">+</button>
+    </div>
+  </div>
+
+  <h3 id="sec-additional" class="section-anchor">Additional information</h3>
+  <label>Shade</label>
+  <div class="options">
+    <label><input type="radio" name="shade" value="Yes"> Yes</label>
+    <label><input type="radio" name="shade" value="No"> No</label>
+    <label><input type="radio" name="shade" value="Partial"> Partial</label>
+  </div>
+
+  <label>Light (after sunset)</label>
+  <div class="options">
+    <label><input type="radio" name="light_after_sunset" value="Yes"> Yes</label>
+    <label><input type="radio" name="light_after_sunset" value="No"> No</label>
+    <label><input type="radio" name="light_after_sunset" value="Partial"> Partial</label>
+  </div>
+
+  <label>Geometry of Track</label>
+  <div class="options">
+    <label><input type="radio" name="track_geometry" value="Road Level"> Road Level</label>
+    <label><input type="radio" name="track_geometry" value="Footpath Level"> Footpath Level</label>
+    <label><input type="radio" name="track_geometry" value="Segregated from FP&R"> Segregated from FP&R</label>
+    <label><input type="radio" name="track_geometry" value="NA"> NA</label>
+  </div>
+
+  <label>Presence of Buffer Zone</label>
+  <div class="options">
+    <label><input type="radio" name="buffer_zone" value="Segregated"> Segregated</label>
+    <label><input type="radio" name="buffer_zone" value="Buffer Zone"> Buffer Zone</label>
+    <label><input type="radio" name="buffer_zone" value="None"> None</label>
+    <label><input type="radio" name="buffer_zone" value="NA"> NA</label>
+  </div>
+
+  <h3 id="sec-dimensions" class="section-anchor">Segment Dimensions & Comments</h3>
+  <label>Width of Segment (m)</label>
+  <input type="number" name="segment_width" placeholder="Enter width in meters" min="0">
+  <label>Length of Segment (m)</label>
+  <input type="number" name="segment_length" placeholder="Enter length in meters" min="0">
+  <label>Surveyor's Comments</label>
+  <textarea name="comments" placeholder="Enter comments…" rows="4"></textarea>
+
+  <button type="submit" class="btn">Submit Full Audit</button>
+  <button type="button" class="btn-reset" onclick="resetForm()">🔄 Reset / Clear Form</button>
+</div>
+</form>
+
+<script src="../js/form.js"></script>
+
+</body>
+</html>

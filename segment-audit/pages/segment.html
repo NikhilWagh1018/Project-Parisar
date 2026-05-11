@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Road Cycle Track Audit</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/segment.css">
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="header-logo">
+    <div class="logo-dot">
+      <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+    </div>
+    Road Audit
+  </div>
+  <div class="step-indicator" id="stepIndicator">
+    <div class="step active" id="step1"><div class="step-num">1</div><span>Road Info</span></div>
+    <span class="step-sep">›</span>
+    <div class="step" id="step2"><div class="step-num">2</div><span>Segments</span></div>
+    <span class="step-sep">›</span>
+    <div class="step" id="step3"><div class="step-num">3</div><span>Audit</span></div>
+  </div>
+</header>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Main -->
+<div class="container">
+
+  <!-- ── SECTION 1: Road Setup ── -->
+  <div id="roadSetupSection">
+    <div class="page-title">Define Road</div>
+    <div class="page-subtitle">Set up the road details before adding audit segments.</div>
+
+    <!-- Road Info Card -->
+    <div class="card">
+      <div class="card-title">
+        <div class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg></div>
+        Road Information
+      </div>
+
+      <div class="form-group">
+        <label class="required">Road Name</label>
+        <select id="roadName">
+          <option value="">— Select a Road —</option>
+          <option>BANER ROAD</option><option>BIBVEWADI ROAD</option><option>DECCAN COLLEGE ROAD</option>
+          <option>DP ROAD</option><option>F.C. ROAD</option><option>GANGADHAM ROAD</option>
+          <option>J.M. ROAD</option><option>KARVE ROAD</option><option>KHADKI ROAD</option>
+          <option>PASHAN ROAD</option><option>PASHAN SUS ROAD</option><option>PMC ROAD</option>
+          <option>PRATHAMESH PARK ROAD</option><option>SANGAMWADI ROAD</option><option>S.B. ROAD</option>
+          <option>SINHAGAD ROAD</option><option>SPICER COLLEGE ROAD</option>
+          <option>SWAMI VIVEKANAD ROAD</option>
+        </select>
+        <div class="field-error" id="err-roadName">Please select a road.</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="required">Start Point</label>
+          <input type="text" id="roadStart" placeholder="Start landmark or intersection">
+          <div class="field-error" id="err-roadStart">Start point is required.</div>
+        </div>
+        <div class="form-group">
+          <label class="required">End Point</label>
+          <input type="text" id="roadEnd" placeholder="End landmark or intersection">
+          <div class="field-error" id="err-roadEnd">End point is required.</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="required">Total Road Length (meters)</label>
+        <input type="number" id="roadLength" placeholder="e.g. 1500" min="1">
+        <div class="input-hint">Minimum 50 m. Used to calculate segment distribution.</div>
+        <div class="field-error" id="err-roadLength">Enter a valid length greater than 0.</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="card-title" style="margin-bottom: 12px;">
+        <div class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
+        GPS Coordinates <span style="font-size:12px;font-weight:400;color:var(--gray-400);margin-left:6px;">(optional)</span>
+      </div>
+
+      <div class="gps-row">
+        <div class="form-group">
+          <label>GPS Start</label>
+          <div class="gps-input-wrap">
+            <input type="text" id="roadGpsStart" placeholder="18.5204, 73.8567">
+            <span class="gps-icon" onclick="getGPS('start')" title="Use current location">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+            </span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>GPS End</label>
+          <div class="gps-input-wrap">
+            <input type="text" id="roadGpsEnd" placeholder="18.5214, 73.8577">
+            <span class="gps-icon" onclick="getGPS('end')" title="Use current location">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Segmentation Method Card -->
+    <div class="card">
+      <div class="card-title">
+        <div class="icon"><svg viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg></div>
+        Segmentation Method
+      </div>
+
+      <div class="method-grid">
+        <div class="method-option" id="opt-auto" onclick="selectMethod('auto')">
+          <input type="radio" name="segmentMethod" value="auto">
+          <div class="method-label"><span class="method-radio"></span>Automatic</div>
+          <div class="method-desc">Divide into equal segments by standard length</div>
+        </div>
+        <div class="method-option" id="opt-manual" onclick="selectMethod('manual')">
+          <input type="radio" name="segmentMethod" value="manual">
+          <div class="method-label"><span class="method-radio"></span>Manual</div>
+          <div class="method-desc">Define custom boundaries by landmark</div>
+        </div>
+      </div>
+
+      <!-- Auto Content -->
+      <div id="autoContent" class="method-content">
+        <div class="form-group" style="margin-top:16px;">
+          <label>Standard Segment Length</label>
+          <select id="segmentLength">
+            <option value="100">100 meters</option>
+            <option value="200" selected>200 meters</option>
+            <option value="300">300 meters</option>
+            <option value="500">500 meters</option>
+            <option value="custom">Custom length…</option>
+          </select>
+        </div>
+        <div id="customLengthInput" style="display:none;" class="form-group">
+          <label>Custom Segment Length (meters)</label>
+          <input type="number" id="customSegmentLength" placeholder="e.g. 150" min="50">
+          <div class="field-error" id="err-customLength">Enter a length of at least 50 m.</div>
+        </div>
+        <div class="preview-banner" id="autoPreview">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span id="autoPreviewText"></span>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="generateAutoSegments()">
+            <svg viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z"/></svg>
+            Generate Segments
+          </button>
+        </div>
+      </div>
+
+      <!-- Manual Content -->
+      <div id="manualContent" class="method-content">
+        <div id="manualSegmentsList"></div>
+        <div id="manualEmpty" class="empty-state">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="4" rx="1"/><rect x="3" y="10" width="12" height="4" rx="1"/><rect x="3" y="17" width="9" height="4" rx="1"/></svg>
+          <p>No segments yet. Click "Add Segment" to begin.</p>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="addManualSegment()">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Segment
+          </button>
+          <button class="btn btn-primary" onclick="saveManualSegments()">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Save Segments
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 2: Segments List ── -->
+  <div id="segmentsSection" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+      <div>
+        <div class="page-title">Audit Segments</div>
+        <div class="page-subtitle">Complete each segment audit to track progress.</div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="editRoadInfo()">
+        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit Road
+      </button>
+    </div>
+
+    <div class="road-summary">
+      <div>
+        <div class="road-summary-name" id="roadNameDisplay"></div>
+        <div class="road-summary-meta" id="roadRouteDisplay"></div>
+      </div>
+      <div class="road-summary-pills" id="roadPills"></div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <span id="progressLabel">Audit Progress</span>
+        <span id="progressPercent">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressBar" style="width:0%"></div></div>
+    </div>
+
+    <div id="segmentsList"></div>
+
+    <!-- Completion Summary Banner (shown when all done) -->
+    <div id="completionBanner" style="display:none;">
+      <div class="completion-banner">
+        <div class="completion-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="completion-text">
+          <div class="completion-title" id="completionTitle"></div>
+          <div class="completion-sub">All segment audits are complete. The road is ready for final scoring.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Blocked Results Banner (shown when segments still pending) -->
+    <div id="blockedBanner" style="display:none;">
+      <div class="blocked-banner">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="blockedText"></span>
+      </div>
+    </div>
+
+    <!-- ── REPLACEMENT btn-row ── -->
+<div class="btn-row" style="justify-content:center;margin-top:24px;gap:14px;flex-wrap:wrap">
+
+  <button class="btn btn-secondary btn-lg" onclick="goToDashboard()">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M19 12H5M12 5l-7 7 7 7"/>
+    </svg>
+    Back to Dashboard
+  </button>
+
+  <button class="btn btn-primary btn-lg" id="dlPdfBtn" onclick="downloadRoadScore()">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="7 10 12 15 17 10"/>
+      <line x1="12" y1="15" x2="12" y2="3"/>
+    </svg>
+    Download Road Score PDF
+  </button>
+
+</div>
+  </div>
+
+</div>
+
+<!-- Edit Road Confirmation Modal -->
+<div id="editModal" class="modal-overlay" onclick="if(event.target===this)closeEditModal()">
+  <div class="modal-box">
+    <div class="modal-icon">
+      <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <div class="modal-heading">Edit Road Information?</div>
+    <div class="modal-body" id="editModalBody"></div>
+    <div class="modal-warning" id="editModalWarning"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmEditRoad()">Yes, Edit Road</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/segment.js"></script>
+
+
+<script>
+async function downloadRoadScore() {
+  const btn  = document.getElementById('downloadPdfBtn');
+  const orig = btn.innerHTML;
+
+  btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Generating PDF…';
+  btn.disabled = true;
+
+  try {
+    // Pull road data from localStorage (set by segment.js when road is saved)
+    const raw = localStorage.getItem('roadData');
+    if (!raw) { alert('No road data found. Please set up and save a road first.'); return; }
+
+    const roadData = JSON.parse(raw);
+    const road     = roadData.road     || {};
+    const segments = roadData.segments || [];
+
+    if (!road.name) { alert('Road name is missing from saved data.'); return; }
+
+    const roadName = encodeURIComponent(road.name);
+    const segIds   = segments.map(s => s.id).filter(Boolean).join(',');
+
+    if (!segIds) { alert('No segment IDs found. Please save segments first.'); return; }
+
+    // Open PDF report in new tab — user can print/save as PDF from browser
+    window.open(`../reports/report.php?road=${roadName}&seg_ids=${segIds}`, '_blank');
+
+  } catch(e) {
+    console.error(e);
+    alert('Could not generate PDF. Error: ' + e.message);
+  } finally {
+    btn.innerHTML = orig;
+    btn.disabled  = false;
+  }
+}
+
+// Remove old exportAllData if it exists (replaced by downloadRoadScore above)
+window.exportAllData = function() { downloadRoadScore(); };
+
+/* ── Navigate back to dashboard ── */
+function goToDashboard() {
+  window.location.href = 'dashboard.php';
+}
+
+/* ── Download Road Score PDF ──
+   Reads road name from multiple sources so it never fails.
+   report.php fetches segments from DB by road_name — no seg_ids needed.
+*/
+function downloadRoadScore() {
+  const btn  = document.getElementById('dlPdfBtn');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '⏳ Generating…';
+  btn.disabled = true;
+
+  try {
+    // Source 1: localStorage roadData (set by segment.js when road is saved)
+    let roadName = '';
+    try {
+      const raw = localStorage.getItem('roadData');
+      if (raw) {
+        const rd = JSON.parse(raw);
+        roadName = (rd.road && rd.road.name) ? rd.road.name.trim() : '';
+      }
+    } catch(e) {}
+
+    // Source 2: DOM element #roadNameDisplay (shown in segments section)
+    if (!roadName) {
+      const el = document.getElementById('roadNameDisplay');
+      if (el && el.textContent.trim()) {
+        roadName = el.textContent.trim();
+      }
+    }
+
+    // Source 3: road name select dropdown (in road setup section)
+    if (!roadName) {
+      const sel = document.getElementById('roadName');
+      if (sel && sel.value) roadName = sel.value.trim();
+    }
+
+    if (!roadName) {
+      alert('Road name not found. Please set up a road and save segments first, then try again.');
+      return;
+    }
+
+    // Build URL — report.php queries DB by road_name directly
+    const url = '../reports/report.php?road=' + encodeURIComponent(roadName);
+    window.open(url, '_blank');
+
+  } catch(e) {
+    alert('Error: ' + e.message);
+    console.error(e);
+  } finally {
+    btn.innerHTML = orig;
+    btn.disabled  = false;
+  }
+}
+
+/* Override old exportAllData if it exists in segment.js */
+window.exportAllData = downloadRoadScore;
+
+</script>
+
+
+<script>
+// ── Back to Dashboard ─────────────────────────────────────────────
+function goToDashboard() { window.location.href = 'dashboard.php'; }
+
+// ── Download Road Score PDF ───────────────────────────────────────
+function downloadRoadScore() {
+  const btn  = document.getElementById('dlPdfBtn');
+  const orig = btn ? btn.innerHTML : '';
+  if (btn) { btn.innerHTML = '⏳ Generating…'; btn.disabled = true; }
+
+  try {
+    // Source 1: localStorage
+    let roadName = '';
+    try {
+      const raw = localStorage.getItem('roadData');
+      if (raw) {
+        const rd = JSON.parse(raw);
+        roadName = (rd.road && rd.road.name) ? rd.road.name.trim() : '';
+      }
+    } catch(e) {}
+
+    // Source 2: roadNameDisplay DOM element
+    if (!roadName) {
+      const el = document.getElementById('roadNameDisplay');
+      if (el && el.textContent.trim()) roadName = el.textContent.trim();
+    }
+
+    // Source 3: road name select dropdown
+    if (!roadName) {
+      const sel = document.getElementById('roadName');
+      if (sel && sel.value) roadName = sel.value.trim();
+    }
+
+    if (!roadName) {
+      alert('Road name not found. Please set up a road and save segments first.');
+      return;
+    }
+
+    // Open report in new tab — user presses Ctrl+P to save as PDF
+    window.open('../reports/report.php?road=' + encodeURIComponent(roadName), '_blank');
+
+  } catch(e) {
+    alert('Error: ' + e.message);
+  } finally {
+    if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+  }
+}
+
+// Override old exportAllData
+window.exportAllData = downloadRoadScore;
+</script>
+</body>
+</html>
