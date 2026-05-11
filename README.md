@@ -17,7 +17,7 @@ A comprehensive web application for environmental auditing and sustainability ma
 4. [Project Structure](#project-structure)
 5. [Features](#features)
 6. [Troubleshooting](#troubleshooting)
-7. [Contributing](#contributing)
+7. [Access & Permissions](#access--permissions)
 8. [License](#license)
 
 ---
@@ -32,6 +32,8 @@ A comprehensive web application for environmental auditing and sustainability ma
 
 The application helps organizations manage and track their environmental segments and audit processes efficiently.
 
+⚠️ **PRIVATE PROJECT**: This is a private, proprietary project. Unauthorized access, distribution, or modification is strictly prohibited.
+
 ---
 
 ## ✅ Prerequisites
@@ -42,6 +44,7 @@ Before you start, make sure you have:
 - **Internet connection** to download XAMPP
 - **Git** installed (optional, but recommended)
 - **At least 500MB free disk space**
+- **Authorization** to access this private repository
 
 ---
 
@@ -154,7 +157,7 @@ Now that XAMPP is installed, let's get the Project-Parisar code.
 
 #### Option B: Manual Download (If you don't have Git)
 
-1. Visit: https://github.com/NikhilWagh1018/Project-Parisar
+1. Visit: https://github.com/NikhilWagh1018/Project-Parisar (requires authorization)
 2. Click green **"Code"** button
 3. Click **"Download ZIP"**
 4. Extract the ZIP file to `C:\xampp\htdocs\` (Windows) or equivalent folder
@@ -409,21 +412,31 @@ mysql -u root -p parisar_db < parisar_db_backup.sql
 
 ---
 
-## 🤝 Contributing
+## 🔐 Access & Permissions
 
-Contributions are welcome! To contribute:
+This is a **PRIVATE PROJECT**. Access is restricted to authorized team members only.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+**To request access:**
+1. Contact the project maintainer
+2. Provide justification for access request
+3. Wait for approval before proceeding
+
+**Authorized users agree to:**
+- Not distribute this code outside of authorized parties
+- Not modify the code without permission
+- Respect the intellectual property rights
+- Follow all organizational policies
+- Report any security vulnerabilities immediately
 
 ---
 
 ## 📝 License
 
-This project is open source. Please check the LICENSE file for details.
+**PROPRIETARY LICENSE**
+
+This project is proprietary and confidential. Unauthorized copying, distribution, or modification is strictly prohibited. All rights reserved.
+
+For licensing inquiries, contact the project owner.
 
 ---
 
@@ -437,8 +450,8 @@ This project is open source. Please check the LICENSE file for details.
 
 If you encounter any issues:
 1. Check the [Troubleshooting](#troubleshooting) section
-2. Open an Issue on GitHub
-3. Check existing issues for similar problems
+2. Contact the project maintainer directly
+3. Open an Issue on the private repository (authorized users only)
 4. Include error messages and steps to reproduce
 
 ---
